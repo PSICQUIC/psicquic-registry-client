@@ -52,6 +52,8 @@
                         <versionTagPrefix>${project.artifactId}-</versionTagPrefix>
                     </flowInitContext>
                     <!-- see goals wiki page for configuration options -->
+                    <!--Whether to allow untracked files when checking if the working tree is clean.-->
+                    <allowUntracked>true</allowUntracked>
                     <username>${git.user}</username>
                     <password>${git.password}</password>
                     <pullMaster>true</pullMaster>
