@@ -5,9 +5,16 @@
     <artifactId>psicquic-registry-client</artifactId>
     <packaging>jar</packaging>
 
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.1</version>
 
     <name>PSI :: PSICQUIC Registry Client</name>
+
+    <scm>
+        <connection>scm:git:https://github.com/PSICQUIC/psicquic-registry-client</connection>
+        <developerConnection>scm:git:https://github.com/PSICQUIC/psicquic-registry-client</developerConnection>
+        <url>https://github.com/PSICQUIC/psicquic-registry-client</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <cxf.version>2.4.3</cxf.version>
@@ -17,16 +24,10 @@
         <bundle.symbolicName>org.hupo.psi.mi.psicquic.registry.client</bundle.symbolicName>
     </properties>
 
-    <scm>
-        <connection>scm:svn:http://psicquic.googlecode.com/svn/trunk/psicquic-registry-client</connection>
-        <developerConnection>scm:svn:https://psicquic.googlecode.com/svn/trunk/psicquic-registry-client</developerConnection>
-        <url>http://code.google.com/p/psicquic/source/browse/#svn/trunk/psicquic-registry-client</url>
-    </scm>
-
     <build>
-        <finalName>${artifactId}-${version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
 
-         <resources>
+        <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
@@ -34,6 +35,33 @@
         </resources>
 
         <plugins>
+            <plugin>
+                <!--mvn jgitflow:release-start -Dgit.user=xxxx -Dgit.password=xxxx-->
+                <!--mvn jgitflow:release-finish -Dmaven.javadoc.skip=true -Dgit.user=xxxx -Dgit.password=xxxx-->
+                <groupId>external.atlassian.jgitflow</groupId>
+                <artifactId>jgitflow-maven-plugin</artifactId>
+                <version>1.0-m5.1</version>
+                <configuration>
+                    <flowInitContext>
+                        <masterBranchName>master</masterBranchName>
+                        <developBranchName>develop</developBranchName>
+                        <featureBranchPrefix>feature-</featureBranchPrefix>
+                        <releaseBranchPrefix>release-</releaseBranchPrefix>
+                        <hotfixBranchPrefix>hotfix-</hotfixBranchPrefix>
+                        <versionTagPrefix>${project.artifactId}-</versionTagPrefix>
+                    </flowInitContext>
+                    <!-- see goals wiki page for configuration options -->
+                    <!--Whether to allow untracked files when checking if the working tree is clean.-->
+                    <allowUntracked>true</allowUntracked>
+                    <username>${git.user}</username>
+                    <password>${git.password}</password>
+                    <pullMaster>true</pullMaster>
+                    <pullDevelop>true</pullDevelop>
+                    <pushReleases>true</pushReleases>
+                    <pushHotfixes>true</pushHotfixes>
+                    <pushFeatures>true</pushFeatures>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.ops4j</groupId>
                 <artifactId>maven-pax-plugin</artifactId>
@@ -46,35 +74,36 @@
                 <!--<extensions>true</extensions>-->
             </plugin>
             <plugin>
-                 <!--
-                  | the following instructions build a simple set of public/private classes into an OSGi bundle
-                 -->
-                 <groupId>org.apache.felix</groupId>
-                 <artifactId>maven-bundle-plugin</artifactId>
+                <!--
+                 | the following instructions build a simple set of public/private classes into an OSGi bundle
+                -->
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.3.0</version>
                 <extensions>true</extensions>
-                 <configuration>
-                     <instructions>
-                         <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
-                         <Bundle-Version>${pom.version}</Bundle-Version>
-                         <!--
-                          | assume public classes are in the top package, and private classes are under ".internal"
-                         -->
-                         <Export-Package>
-                             !${bundle.namespace}.internal.*,${bundle.namespace}.*,org.hupo.psi.mi.psicquic.*"
-                         </Export-Package>
-                         <Private-Package>${bundle.namespace}.internal.*;javax.xml.namespace.*</Private-Package>
-                         <!--
-                          | each module can override these defaults in their osgi.bnd file
-                         -->
-                         <_include>-osgi.bnd</_include>
-                     </instructions>
-                 </configuration>
-             </plugin>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <!--
+                         | assume public classes are in the top package, and private classes are under ".internal"
+                        -->
+                        <Export-Package>
+                            !${bundle.namespace}.internal.*,${bundle.namespace}.*,org.hupo.psi.mi.psicquic.*"
+                        </Export-Package>
+                        <Private-Package>${bundle.namespace}.internal.*;javax.xml.namespace.*</Private-Package>
+                        <!--
+                         | each module can override these defaults in their osgi.bnd file
+                        -->
+                        <_include>-osgi.bnd</_include>
+                    </instructions>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
-	            <artifactId>maven-jaxb2-plugin</artifactId>
-	            <version>0.8.2</version>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <version>0.8.2</version>
                 <configuration>
                     <schemaDirectory>${project.basedir}/src/main/resources/META-INF/schema</schemaDirectory>
                     <bindingDirectory>${project.basedir}/src/main/resources/META-INF/schema</bindingDirectory>
@@ -90,14 +119,18 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>attach-source</id>
@@ -120,27 +153,20 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.3</version>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <attach>false</attach>
-                    <descriptors>
-                        <descriptor>src/main/assembly/bin-with-dependencies.xml</descriptor>
-                    </descriptors>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>disable-java8-doclint</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <additionalparam>-Xdoclint:none</additionalparam>
+            </properties>
+        </profile>
+    </profiles>
 
     <dependencies>
 
@@ -159,26 +185,26 @@
         </dependency>
 
         <!-- JAXB related deps -->
-        <dependency>
-            <groupId>org.apache.servicemix.specs</groupId>
-            <artifactId>org.apache.servicemix.specs.jaxb-api-2.1</artifactId>
-            <version>2.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.jaxb-impl</artifactId>
-            <version>2.2.4_2</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>com.springsource.javax.activation</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.stream</groupId>
-            <artifactId>com.springsource.javax.xml.stream</artifactId>
-            <version>1.0.1</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.servicemix.specs</groupId>-->
+            <!--<artifactId>org.apache.servicemix.specs.jaxb-api-2.1</artifactId>-->
+            <!--<version>2.0.0</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.servicemix.bundles</groupId>-->
+            <!--<artifactId>org.apache.servicemix.bundles.jaxb-impl</artifactId>-->
+            <!--<version>2.2.4_2</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>javax.activation</groupId>-->
+            <!--<artifactId>com.springsource.javax.activation</artifactId>-->
+            <!--<version>1.1.1</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>javax.xml.stream</groupId>-->
+            <!--<artifactId>com.springsource.javax.xml.stream</artifactId>-->
+            <!--<version>1.0.1</version>-->
+        <!--</dependency>-->
 
         <!-- Tests -->
         <dependency>
@@ -190,35 +216,30 @@
     </dependencies>
 
     <repositories>
-        <!-- EBI repository -->
         <repository>
-            <id>intact.nexus</id>
-            <name>IntAct Nexus</name>
-            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/groups/public/</url>
+            <id>nexus-ebi-release-repo</id>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
         </repository>
-
+        <repository>
+            <id>nexus-ebi-snapshot-repo</id>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
+        </repository>
     </repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>intact.nexus</id>
-            <name>IntAct Nexus</name>
-            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/groups/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
-
     <distributionManagement>
+        <!-- EBI repo -->
         <repository>
-            <id>ebi-repo</id>
-            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo</url>
+            <id>pst-release</id>
+            <name>EBI Nexus Repository</name>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
         </repository>
-
+        <!-- EBI SNAPSHOT repo -->
         <snapshotRepository>
-            <id>ebi-repo-snapshots</id>
-            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo-snapshots</url>
+            <uniqueVersion>false</uniqueVersion>
+            <id>pst-snapshots</id>
+            <name>EBI Nexus Snapshots Repository</name>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
         </snapshotRepository>
-
     </distributionManagement>
-
 
 </project>
