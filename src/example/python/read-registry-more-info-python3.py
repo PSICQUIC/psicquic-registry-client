@@ -1,15 +1,15 @@
-import urllib2
+from urllib.request import urlopen
 import xml.etree.ElementTree as ET
 
 urlStr = 'http://www.ebi.ac.uk/Tools/webservices/psicquic/registry/registry?action=STATUS&format=xml'
 
 # read the file
 try:
-    fileHandle = urllib2.urlopen(urlStr)
+    fileHandle = urlopen(urlStr)
     content = fileHandle.read()
     fileHandle.close()
 except IOError:
-    print 'Cannot open URL' % urlStr
+    print('Cannot open URL ' + urlStr)
     content = ''
 
 # Create the XML reader
@@ -28,11 +28,11 @@ for service in root.findall(xmlns + 'service'):
     restUrl = service.find(xmlns + 'restUrl').text
     restExample = service.find(xmlns + 'restExample').text
 
-    print 'Service: ' + name + ' =========================================================================='
-    print '\tActive: ' + active
-    print '\tEvidences: ' + interactionCount
-    print '\tREST URL: ' + restUrl
-    print '\tREST Example: ' + restExample
+    print('Service: ' + name  +' ==========================================================================')
+    print('\tActive: ' + active)
+    print('\tEvidences: ' + interactionCount)
+    print('\tREST URL: ' + restUrl)
+    print('\tREST Example: ' + restExample)
 
     totalCount = totalCount + int(interactionCount)
     serviceCount = serviceCount + 1
@@ -41,6 +41,6 @@ for service in root.findall(xmlns + 'service'):
        activeCount = activeCount + 1
 
 # Print totals
-print '\nTotal evidences: ' + str(totalCount)
-print 'Total services: ' + str(serviceCount)
-print '\tActive: ' + str(activeCount)
+print('\nTotal evidences: ' + str(totalCount))
+print('Total services: ' + str(serviceCount))
+print('\tActive: ' + str(activeCount))
